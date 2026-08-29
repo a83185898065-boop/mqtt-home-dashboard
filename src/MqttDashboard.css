@@ -1,0 +1,1035 @@
+/* =========================================================
+   GLOBAL RESET
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+
+  background: #0f1115;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.mqtt-dashboard {
+  --bg: #0f1115;
+  --card: #171a21;
+  --card-border: #262b35;
+
+  --text: #e8eaed;
+  --text-dim: #8a8f9a;
+
+  --accent: #4fd1a5;
+  --accent-dim: #2a4a3f;
+
+  --danger: #e5484d;
+
+  width: 100%;
+  min-height: 100vh;
+
+  margin: 0;
+  padding: 32px 24px 48px;
+
+  background: var(--bg);
+  color: var(--text);
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.mqtt-dashboard__header {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto 32px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.mqtt-dashboard__heading {
+  min-width: 0;
+  flex: 1;
+}
+
+.mqtt-dashboard__header h1 {
+  margin: 0;
+
+  font-size: 1.6rem;
+  line-height: 1.2;
+
+  font-weight: 600;
+
+  letter-spacing: -0.01em;
+
+  color: var(--text);
+}
+
+.mqtt-dashboard__header p {
+  margin: 7px 0 0;
+
+  font-size: 0.82rem;
+  line-height: 1.4;
+
+  color: var(--text-dim);
+}
+
+/* =========================================================
+   HEADER ACTIONS
+========================================================= */
+
+.mqtt-dashboard__actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   STATUS BADGE
+========================================================= */
+
+.status-badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  min-height: 32px;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  font-size: 0.78rem;
+
+  font-weight: 500;
+
+  line-height: 1;
+
+  white-space: nowrap;
+
+  border: 1px solid transparent;
+}
+
+.status-badge--connected {
+  background: var(--accent-dim);
+
+  color: var(--accent);
+
+  border-color:
+    rgba(79, 209, 165, 0.35);
+}
+
+.status-badge--connecting {
+  background: #2a2f1f;
+
+  color: #d8c34f;
+
+  border-color:
+    rgba(216, 195, 79, 0.35);
+}
+
+.status-badge--disconnected {
+  background:
+    rgba(229, 72, 77, 0.12);
+
+  color: var(--danger);
+
+  border-color:
+    rgba(229, 72, 77, 0.35);
+}
+
+.status-badge--offline {
+  background:
+    rgba(229, 72, 77, 0.12);
+
+  color: var(--danger);
+
+  border-color:
+    rgba(229, 72, 77, 0.35);
+}
+
+.status-badge--error {
+  background:
+    rgba(229, 72, 77, 0.12);
+
+  color: var(--danger);
+
+  border-color:
+    rgba(229, 72, 77, 0.35);
+}
+
+/* =========================================================
+   CONNECT BUTTON
+========================================================= */
+
+.mqtt-connect-button {
+  height: 32px;
+
+  min-width: 78px;
+
+  padding: 0 14px;
+
+  border: 1px solid
+    rgba(79, 209, 165, 0.35);
+
+  border-radius: 8px;
+
+  background:
+    rgba(79, 209, 165, 0.12);
+
+  color: var(--accent);
+
+  font-family: inherit;
+
+  font-size: 0.78rem;
+
+  font-weight: 600;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  flex-shrink: 0;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.mqtt-connect-button:hover:not(:disabled) {
+  background:
+    rgba(79, 209, 165, 0.2);
+
+  border-color:
+    rgba(79, 209, 165, 0.55);
+}
+
+.mqtt-connect-button:active:not(:disabled) {
+  opacity: 0.75;
+}
+
+.mqtt-connect-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   DISCONNECT BUTTON
+========================================================= */
+
+.mqtt-disconnect {
+  height: 32px;
+
+  min-width: 88px;
+
+  padding: 0 13px;
+
+  border: 1px solid
+    rgba(229, 72, 77, 0.35);
+
+  border-radius: 8px;
+
+  background:
+    rgba(229, 72, 77, 0.12);
+
+  color: var(--danger);
+
+  font-family: inherit;
+
+  font-size: 0.78rem;
+
+  font-weight: 600;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  flex-shrink: 0;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.mqtt-disconnect:hover {
+  background:
+    rgba(229, 72, 77, 0.2);
+
+  border-color:
+    rgba(229, 72, 77, 0.55);
+}
+
+.mqtt-disconnect:active {
+  opacity: 0.75;
+}
+
+/* =========================================================
+   DASHBOARD GRID
+========================================================= */
+
+.mqtt-dashboard__grid {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+
+  align-items: stretch;
+}
+
+/* =========================================================
+   DEVICE CARD
+========================================================= */
+
+.device-card {
+  width: 100%;
+  min-width: 0;
+
+  background: var(--card);
+
+  border: 1px solid var(--card-border);
+
+  border-radius: 14px;
+
+  padding: 18px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+
+  overflow: hidden;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.device-card:hover {
+  border-color: #343b48;
+
+  box-shadow:
+    0 4px 18px
+    rgba(0, 0, 0, 0.18);
+}
+
+/* =========================================================
+   CARD TOP
+========================================================= */
+
+.device-card__top {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.device-card__name {
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 0.9rem;
+
+  color: var(--text-dim);
+
+  font-weight: 500;
+}
+
+/* =========================================================
+   FRESHNESS DOT
+========================================================= */
+
+.freshness-dot {
+  width: 8px;
+  height: 8px;
+
+  flex: 0 0 8px;
+
+  border-radius: 50%;
+}
+
+.freshness-dot--live {
+  background: var(--accent);
+
+  box-shadow:
+    0 0 6px
+    rgba(79, 209, 165, 0.7);
+}
+
+.freshness-dot--stale {
+  background: #4a4f5a;
+}
+
+/* =========================================================
+   STATE TEXT
+========================================================= */
+
+.device-card__state {
+  min-height: 20px;
+
+  font-size: 0.85rem;
+
+  color: var(--text-dim);
+
+  line-height: 1.4;
+
+  word-break: break-word;
+}
+
+/* =========================================================
+   SENSOR READING
+========================================================= */
+
+.device-card__reading {
+  min-width: 0;
+
+  font-size: 2rem;
+
+  line-height: 1.2;
+
+  font-weight: 600;
+
+  letter-spacing: -0.02em;
+
+  color: var(--text);
+
+  overflow-wrap: anywhere;
+}
+
+.device-card__unit {
+  margin-left: 4px;
+
+  font-size: 1rem;
+
+  color: var(--text-dim);
+
+  font-weight: 400;
+}
+
+/* =========================================================
+   TOGGLE SWITCH
+========================================================= */
+
+.toggle {
+  width: 54px;
+  height: 32px;
+
+  flex: 0 0 auto;
+
+  padding: 0;
+
+  position: relative;
+
+  border: none;
+
+  border-radius: 999px;
+
+  background: #2a2e37;
+
+  cursor: pointer;
+
+  outline: none;
+
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.toggle:focus-visible {
+  box-shadow:
+    0 0 0 3px
+    rgba(79, 209, 165, 0.2);
+}
+
+.toggle:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+.toggle--on {
+  background: var(--accent);
+}
+
+.toggle__knob {
+  position: absolute;
+
+  top: 4px;
+  left: 4px;
+
+  width: 24px;
+  height: 24px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.toggle--on .toggle__knob {
+  transform: translateX(22px);
+}
+
+/* =========================================================
+   SLIDER
+========================================================= */
+
+.slider {
+  width: 100%;
+  min-width: 0;
+
+  accent-color: var(--accent);
+
+  cursor: pointer;
+}
+
+.slider:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   MQTT TOPIC
+========================================================= */
+
+.device-topic {
+  width: 100%;
+  max-width: 100%;
+
+  padding: 9px 10px;
+
+  border-radius: 8px;
+
+  background: #11141a;
+
+  color: #69707d;
+
+  font-size: 0.68rem;
+
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
+}
+
+/* =========================================================
+   RELAY BUTTONS
+========================================================= */
+
+.relay-buttons {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+.relay-buttons button {
+  width: 100%;
+  min-width: 0;
+
+  min-height: 40px;
+
+  padding: 8px;
+
+  border: 1px solid var(--card-border);
+
+  border-radius: 9px;
+
+  background: #20242c;
+
+  color: var(--text);
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.relay-buttons button:hover {
+  border-color: #3a414d;
+}
+
+.relay-buttons button:active {
+  opacity: 0.8;
+}
+
+.relay-buttons button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+.relay-on.active {
+  background: var(--accent-dim);
+
+  color: var(--accent);
+
+  border-color:
+    rgba(79, 209, 165, 0.35);
+}
+
+.relay-off.active {
+  background:
+    rgba(229, 72, 77, 0.12);
+
+  color: var(--danger);
+
+  border-color:
+    rgba(229, 72, 77, 0.35);
+}
+
+/* =========================================================
+   MQTT MESSAGE SECTION
+========================================================= */
+
+.mqtt-messages {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 16px auto 0;
+
+  padding: 18px;
+
+  background: var(--card);
+
+  border: 1px solid var(--card-border);
+
+  border-radius: 14px;
+
+  overflow: hidden;
+}
+
+.mqtt-messages h2 {
+  margin: 0 0 16px;
+
+  font-size: 1rem;
+
+  font-weight: 600;
+}
+
+.mqtt-topic-row {
+  width: 100%;
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    160px minmax(0, 1fr) 80px;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 11px 0;
+
+  border-bottom:
+    1px solid var(--card-border);
+}
+
+.mqtt-topic-row:last-child {
+  border-bottom: none;
+}
+
+.mqtt-topic-row span {
+  min-width: 0;
+
+  font-size: 0.8rem;
+
+  color: var(--text);
+}
+
+.mqtt-topic-row code {
+  min-width: 0;
+
+  color: var(--text-dim);
+
+  font-size: 0.68rem;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
+}
+
+.mqtt-topic-row strong {
+  min-width: 0;
+
+  text-align: right;
+
+  font-size: 0.8rem;
+
+  color: var(--accent);
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   WARNING
+========================================================= */
+
+.dashboard-warning {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto 16px;
+
+  padding: 12px 16px;
+
+  border-radius: 10px;
+
+  background:
+    rgba(229, 72, 77, 0.12);
+
+  color: var(--danger);
+
+  border:
+    1px solid
+    rgba(229, 72, 77, 0.25);
+
+  font-size: 0.8rem;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+  .mqtt-dashboard {
+    padding:
+      24px
+      16px
+      40px;
+  }
+
+  .mqtt-dashboard__header {
+    max-width: 100%;
+  }
+
+  .mqtt-dashboard__grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+  }
+
+  .mqtt-topic-row {
+    grid-template-columns:
+      130px minmax(0, 1fr) 70px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+  .mqtt-dashboard {
+    width: 100%;
+
+    padding:
+      20px
+      12px
+      32px;
+  }
+
+  .mqtt-dashboard__header {
+    width: 100%;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    justify-content: flex-start;
+
+    gap: 14px;
+
+    margin-bottom: 20px;
+  }
+
+  .mqtt-dashboard__heading {
+    width: 100%;
+  }
+
+  .mqtt-dashboard__actions {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+  }
+
+  .mqtt-dashboard__header h1 {
+    font-size: 1.35rem;
+  }
+
+  .mqtt-dashboard__header p {
+    font-size: 0.75rem;
+  }
+
+  .status-badge {
+    min-height: 32px;
+
+    font-size: 0.72rem;
+
+    padding:
+      6px
+      10px;
+  }
+
+  .mqtt-connect-button,
+  .mqtt-disconnect {
+    height: 34px;
+
+    padding:
+      0
+      12px;
+  }
+
+  .mqtt-dashboard__grid {
+    width: 100%;
+
+    grid-template-columns: 1fr;
+
+    gap: 12px;
+  }
+
+  .device-card {
+    width: 100%;
+
+    padding: 16px;
+
+    border-radius: 12px;
+  }
+
+  .device-card__name {
+    font-size: 0.85rem;
+  }
+
+  .device-card__reading {
+    font-size: 1.8rem;
+  }
+
+  .toggle {
+    width: 56px;
+    height: 32px;
+  }
+
+  .toggle__knob {
+    width: 24px;
+    height: 24px;
+
+    top: 4px;
+    left: 4px;
+  }
+
+  .toggle--on .toggle__knob {
+    transform: translateX(24px);
+  }
+
+  .mqtt-messages {
+    width: 100%;
+
+    padding: 16px;
+
+    border-radius: 12px;
+  }
+
+  .mqtt-topic-row {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 5px;
+
+    padding: 12px 0;
+  }
+
+  .mqtt-topic-row code {
+    width: 100%;
+  }
+
+  .mqtt-topic-row strong {
+    width: 100%;
+
+    text-align: left;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+  .mqtt-dashboard {
+    padding:
+      16px
+      10px
+      24px;
+  }
+
+  .mqtt-dashboard__header h1 {
+    font-size: 1.25rem;
+  }
+
+  .mqtt-dashboard__actions {
+    gap: 6px;
+  }
+
+  .mqtt-connect-button,
+  .mqtt-disconnect {
+    min-width: 0;
+
+    padding:
+      0
+      10px;
+
+    font-size: 0.72rem;
+  }
+
+  .device-card {
+    padding: 14px;
+  }
+
+  .device-card__reading {
+    font-size: 1.6rem;
+  }
+
+  .relay-buttons {
+    gap: 6px;
+  }
+
+  .relay-buttons button {
+    min-height: 38px;
+
+    font-size: 0.74rem;
+  }
+
+  .device-topic {
+    font-size: 0.62rem;
+  }
+}
+
+/* =========================================================
+   TOUCH DEVICES
+========================================================= */
+
+@media (hover: none) {
+  .device-card:hover {
+    border-color: var(--card-border);
+
+    box-shadow: none;
+  }
+
+  .relay-buttons button:hover {
+    border-color: var(--card-border);
+  }
+
+  .mqtt-connect-button:hover {
+    background:
+      rgba(79, 209, 165, 0.12);
+  }
+
+  .mqtt-disconnect:hover {
+    background:
+      rgba(229, 72, 77, 0.12);
+  }
+}

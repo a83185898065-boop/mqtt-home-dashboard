@@ -1,0 +1,253 @@
+.mqtt-connect {
+  --bg: #0f1115;
+  --card: #171a21;
+  --card-border: #262b35;
+  --text: #e8eaed;
+  --text-dim: #8a8f9a;
+  --accent: #4fd1a5;
+  --danger: #e5484d;
+
+  width: 100%;
+  min-height: 100vh;
+
+  margin: 0;
+  padding: 24px;
+
+  background: var(--bg);
+  color: var(--text);
+
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  overflow-x: hidden;
+}
+
+/* Card */
+
+.mqtt-connect__card {
+  width: 100%;
+  max-width: 415px;
+
+  margin: 0 auto;
+
+  background: var(--card);
+
+  border: 1px solid var(--card-border);
+
+  border-radius: 16px;
+
+  padding: 28px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+
+  box-sizing: border-box;
+}
+
+/* Title */
+
+.mqtt-connect__title {
+  margin: 0;
+
+  font-size: 21px;
+  font-weight: 600;
+
+  color: var(--text);
+}
+
+/* Subtitle */
+
+.mqtt-connect__subtitle {
+  margin: -5px 0 5px;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  color: var(--text-dim);
+}
+
+/* Fields */
+
+.mqtt-connect__field {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  font-size: 13px;
+
+  color: var(--text-dim);
+
+  box-sizing: border-box;
+}
+
+/* Inputs */
+
+.mqtt-connect__field input {
+  width: 100%;
+  height: 46px;
+
+  padding: 0 13px;
+
+  background: #0f1115;
+
+  color: var(--text);
+
+  border: 1px solid var(--card-border);
+
+  border-radius: 9px;
+
+  outline: none;
+
+  font-size: 15px;
+
+  font-family: inherit;
+
+  box-sizing: border-box;
+}
+
+.mqtt-connect__field input:focus {
+  border-color: var(--accent);
+
+  box-shadow: 0 0 0 2px rgba(79, 209, 165, 0.08);
+}
+
+.mqtt-connect__field input::placeholder {
+  color: #626977;
+}
+
+/* Username + Password */
+
+.mqtt-connect__row {
+  width: 100%;
+
+  display: flex;
+
+  gap: 12px;
+
+  box-sizing: border-box;
+}
+
+.mqtt-connect__row .mqtt-connect__field {
+  flex: 1;
+  width: 0;
+}
+
+/* Error */
+
+.mqtt-connect__error {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  background: rgba(229, 72, 77, 0.12);
+
+  border: 1px solid rgba(229, 72, 77, 0.35);
+
+  border-radius: 8px;
+
+  color: var(--danger);
+
+  font-size: 13px;
+
+  line-height: 1.45;
+
+  box-sizing: border-box;
+
+  overflow-wrap: anywhere;
+}
+
+/* Connect button */
+
+.mqtt-connect__submit {
+  width: 100%;
+  height: 48px;
+
+  margin: 3px 0 0;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 9px;
+
+  background: var(--accent);
+
+  color: #0f1115;
+
+  font-family: inherit;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition: opacity 0.15s ease;
+}
+
+.mqtt-connect__submit:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.mqtt-connect__submit:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+  .mqtt-connect {
+    padding: 16px 12px;
+  }
+
+  .mqtt-connect__card {
+    max-width: 415px;
+
+    padding: 24px 18px;
+  }
+}
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 480px) {
+  .mqtt-connect {
+    padding: 12px 10px;
+  }
+
+  .mqtt-connect__card {
+    width: 100%;
+    max-width: 415px;
+
+    padding: 22px 16px;
+
+    border-radius: 14px;
+  }
+
+  .mqtt-connect__row {
+    flex-direction: column;
+
+    gap: 14px;
+  }
+
+  .mqtt-connect__row .mqtt-connect__field {
+    width: 100%;
+  }
+}
