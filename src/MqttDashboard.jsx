@@ -95,6 +95,7 @@ export default function MqttDashboard({
     visible: false,
     message: "Sending command...",
     progress: 0,
+    type: "command",
   });
 
   const recognitionRef = useRef(null);
@@ -540,17 +541,19 @@ export default function MqttDashboard({
         visible: false,
         message: "Sending command...",
         progress: 0,
+        type: "command",
       });
     }, 220);
   }, []);
 
-  const showLoader = useCallback((message) => {
+  const showLoader = useCallback((message, type = "command") => {
     clearInterval(loaderTimerRef.current);
 
     setLoader({
       visible: true,
       message,
       progress: 0,
+      type,
     });
 
     let progress = 0;
@@ -630,32 +633,72 @@ export default function MqttDashboard({
     window.speechSynthesis.speak(utterance);
   }, []);
 
-  const findVoiceDevice = useCallback(
+  const numberWords = {
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    ek: 1,
+    eka: 1,
+    do: 2,
+    teen: 3,
+    tin: 3,
+    char: 4,
+    chaar: 4,
+    paanch: 5,
+    panch: 5,
+    cheh: 6,
+    chhah: 6,
+    chhe: 6,
+    saat: 7,
+    sat: 7,
+    aath: 8,
+    ath: 8,
+  };
+
+  const getRelayNumbers = useCallback((command) => {
+    const text = command.toLowerCase();
+    const numbers = new Set();
+
+    const digitMatches = text.match(/\b[1-8]\b/g) || [];
+    digitMatches.forEach((value) => numbers.add(Number(value)));
+
+    Object.entries(numberWords).forEach(([word, number]) => {
+      const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const re = new RegExp(`\\b${escaped}\\b`, "i");
+      if (re.test(text)) numbers.add(number);
+    });
+
+    return [...numbers].sort((a, b) => a - b);
+  }, []);
+
+  const findVoiceDevices = useCallback(
     (command) => {
-      const text =
-        command.toLowerCase();
+      const relayNumbers = getRelayNumbers(command);
 
-      const relayMatch =
-        text.match(
-          /(?:relay|light|fan|switch|device)\s*(?:number\s*)?(1|2|3|4|5|6|7|8)/
-        );
-
-      if (relayMatch) {
-        const number =
-          relayMatch[1];
-
-        const byNumber =
-          devices.find((device) =>
-            String(device.name)
-              .toLowerCase()
-              .includes(number)
-          );
-
-        if (byNumber) {
-          return byNumber;
-        }
+      if (relayNumbers.length > 0) {
+        return relayNumbers
+          .map((number) =>
+            devices.find(
+              (device) =>
+                device.type === "switch" &&
+                (
+                  String(device.id).toLowerCase() ===
+                    `relay-${number}` ||
+                  String(device.name)
+                    .toLowerCase()
+                    .includes(`relay ${number}`)
+                )
+            )
+          )
+          .filter(Boolean);
       }
 
+      const text = command.toLowerCase();
       const keyword =
         text.includes("light")
           ? "light"
@@ -668,60 +711,111 @@ export default function MqttDashboard({
                 : null;
 
       if (keyword) {
-        const byKeyword =
-          devices.find((device) =>
-            String(device.name)
-              .toLowerCase()
-              .includes(keyword)
-          );
-
-        if (byKeyword) {
-          return byKeyword;
-        }
+        return devices.filter((device) =>
+          String(device.name).toLowerCase().includes(keyword)
+        );
       }
 
-      return devices.find(
-        (device) =>
-          device.type === "switch"
-      );
+      return [];
     },
-    [devices]
+    [devices, getRelayNumbers]
   );
 
   const handleVoiceCommand = useCallback(
     async (command) => {
-      const text =
-        command
-          .toLowerCase()
-          .trim();
+      const text = command
+        .toLowerCase()
+        .trim()
+        .replace(/[.,!?]/g, " ");
 
-      if (!text) {
-        return;
-      }
+      if (!text) return;
 
       const isOn =
-        /\b(turn\s+on|switch\s+on|switch\s+on|activate|enable|on)\b/
-          .test(text);
+        /\b(turn\s+on|switch\s+on|activate|enable|on|chala do|chala|jala do|jala|jalaa|jla do|on karo|on kr do|on kar do|chalu karo|chalao|chala do)\b/.test(
+          text
+        );
 
       const isOff =
-        /\b(turn\s+off|switch\s+off|deactivate|disable|off)\b/
-          .test(text);
-
-      if (text.includes("hello") ||
-          text.includes("hi jarvis") ||
-          text.includes("hey jarvis")) {
-        speak(
-          "Hello boss. I am ready."
+        /\b(turn\s+off|switch\s+off|deactivate|disable|off|band karo|band kr do|band kar do|bujha do|bujha|bnd karo|bnd kr do)\b/.test(
+          text
         );
+
+      if (
+        text.includes("hello") ||
+        text.includes("hi jarvis") ||
+        text.includes("hey jarvis")
+      ) {
+        speak("Hello boss. I am ready.");
         return;
       }
 
-      if (text.includes("status")) {
+      if (
+        text.includes("status") ||
+        text.includes("system status") ||
+        text.includes("system check")
+      ) {
         speak(
           connStatus === "connected"
             ? "All systems are online, boss."
             : "MQTT is currently disconnected, boss."
         );
+        return;
+      }
+
+      /*
+       * ALL RELAYS
+       * English: all relay(s), all switches, everything
+       * Hinglish: saare relay, sare relay, sabhi relay, sab relay,
+       *           saare switch, sab switch
+       */
+      const allRelays =
+        /\ball\s+(?:the\s+)?relays?\b/.test(text) ||
+        /\ball\s+(?:the\s+)?switch(?:es)?\b/.test(text) ||
+        /\b(?:saare|sare|sabhi|sab)\s+(?:the\s+)?relays?\b/.test(text) ||
+        /\b(?:saare|sare|sabhi|sab)\s+(?:the\s+)?switch(?:es)?\b/.test(text) ||
+        /\beverything\b/.test(text);
+
+      if (allRelays && (isOn || isOff)) {
+        const payload = isOn ? "ON" : "OFF";
+        const switchDevices = devices.filter(
+          (device) => device.type === "switch" && device.commandTopic
+        );
+
+        if (!switchDevices.length) {
+          speak("I could not find any relays, boss.");
+          return;
+        }
+
+        showLoader(
+          payload === "ON"
+            ? "Turning ON all relays..."
+            : "Turning OFF all relays..."
+        );
+
+        const results = await Promise.all(
+          switchDevices.map((device) =>
+            publish(device.commandTopic, payload)
+              .then(() => true)
+              .catch(() => false)
+          )
+        );
+
+        hideLoader();
+
+        const successCount = results.filter(Boolean).length;
+
+        if (successCount === switchDevices.length) {
+          speak(
+            payload === "ON"
+              ? "All relays turned on, boss."
+              : "All relays turned off, boss."
+          );
+        } else {
+          speak(
+            `Boss, ${successCount} of ${switchDevices.length} relays responded.`
+          );
+        }
+
         return;
       }
 
@@ -732,39 +826,68 @@ export default function MqttDashboard({
         return;
       }
 
-      const device =
-        findVoiceDevice(text);
+      const matchedDevices = findVoiceDevices(text);
 
-      if (!device) {
-        speak(
-          "I could not find that device, boss."
-        );
+      if (!matchedDevices.length) {
+        speak("I could not find that device, boss.");
         return;
       }
 
-      const payload =
-        isOn ? "ON" : "OFF";
+      const payload = isOn ? "ON" : "OFF";
 
-      const success =
-        await runCommand(
-          device,
-          payload
-        );
+      /*
+       * Supports:
+       * "Turn on relay 1 and relay 3"
+       * "Relay one aur relay three on karo"
+       */
+      showLoader(
+        matchedDevices.length > 1
+          ? `${isOn ? "Turning ON" : "Turning OFF"} ${matchedDevices.length} relays...`
+          : `${isOn ? "Turning ON" : "Turning OFF"} ${matchedDevices[0].name}...`
+      );
 
-      if (success) {
-        speak(
-          `${device.name} turned ${isOn ? "on" : "off"}, boss.`
-        );
+      const results = await Promise.all(
+        matchedDevices.map((device) =>
+          publish(device.commandTopic, payload)
+            .then(() => true)
+            .catch((error) => {
+              console.error("Voice command failed:", error);
+              return false;
+            })
+        )
+      );
+
+      hideLoader();
+
+      const successCount = results.filter(Boolean).length;
+
+      if (successCount === matchedDevices.length) {
+        if (matchedDevices.length === 1) {
+          speak(
+            `${matchedDevices[0].name} turned ${
+              isOn ? "on" : "off"
+            }, boss.`
+          );
+        } else {
+          speak(
+            `${successCount} relays turned ${
+              isOn ? "on" : "off"
+            }, boss.`
+          );
+        }
       } else {
         speak(
-          `Sorry boss, I could not control ${device.name}.`
+          `Sorry boss, I could control ${successCount} of ${matchedDevices.length} relays.`
         );
       }
     },
     [
       connStatus,
-      findVoiceDevice,
-      runCommand,
+      devices,
+      findVoiceDevices,
+      hideLoader,
+      publish,
+      showLoader,
       speak,
     ]
   );
@@ -797,7 +920,7 @@ export default function MqttDashboard({
 
       recognition.onstart = () => {
         setVoiceListening(true);
-        showLoader("Listening to your command...");
+        showLoader("Listening to your command...", "voice");
       };
 
       recognition.onresult = (event) => {
@@ -1039,6 +1162,7 @@ export default function MqttDashboard({
         <CommandLoader
           message={loader.message}
           progress={loader.progress}
+          type={loader.type}
         />
       )}
 
@@ -1279,10 +1403,131 @@ function JarvisVoiceButton({
 function CommandLoader({
   message,
   progress,
+  type = "command",
 }) {
   return (
     <>
       <style>{`
+        /* MIC-STYLE VOICE LOADER */
+        .voice-loader-animation {
+          width: 185px;
+          height: 185px;
+          position: relative;
+          display: grid;
+          place-items: center;
+        }
+
+        .voice-loader-ring {
+          position: absolute;
+          border-radius: 50%;
+          border: 1px solid rgba(0, 234, 255, .35);
+          animation: voiceLoaderSpin 5s linear infinite;
+        }
+
+        .voice-loader-ring--one {
+          width: 174px;
+          height: 174px;
+          border-top: 2px solid #00eaff;
+          border-bottom: 2px solid #00eaff;
+        }
+
+        .voice-loader-ring--two {
+          width: 140px;
+          height: 140px;
+          border-left: 2px solid #00eaff;
+          border-right: 2px solid #00eaff;
+          animation-duration: 3s;
+          animation-direction: reverse;
+        }
+
+        .voice-loader-ring--three {
+          width: 112px;
+          height: 112px;
+          border-top: 1px dashed #00eaff;
+          border-bottom: 1px dashed #00eaff;
+          animation-duration: 2s;
+        }
+
+        .voice-loader-mic {
+          position: relative;
+          width: 62px;
+          height: 88px;
+          border: 3px solid #00eaff;
+          border-radius: 34px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: #00eaff;
+          font-size: 30px;
+          background: rgba(0, 234, 255, .035);
+          box-shadow:
+            0 0 16px #00eaff,
+            0 0 42px rgba(0, 234, 255, .45),
+            inset 0 0 22px rgba(0, 234, 255, .14);
+          animation: voiceMicPulse .75s ease-in-out infinite alternate;
+        }
+
+        .voice-loader-mic::after {
+          content: "";
+          position: absolute;
+          width: 96px;
+          height: 65px;
+          bottom: -46px;
+          left: 50%;
+          transform: translateX(-50%);
+          border: 3px solid #00eaff;
+          border-top: 0;
+          border-radius: 0 0 52px 52px;
+          box-shadow: 0 0 12px rgba(0, 234, 255, .7);
+        }
+
+        .voice-loader-wave {
+          position: absolute;
+          bottom: 17px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          z-index: 3;
+        }
+
+        .voice-loader-wave span {
+          width: 3px;
+          height: 8px;
+          border-radius: 4px;
+          background: #00eaff;
+          box-shadow: 0 0 8px #00eaff;
+          animation: voiceLoaderWave .45s ease-in-out infinite alternate;
+        }
+
+        .voice-loader-wave span:nth-child(2) { animation-delay: .08s; }
+        .voice-loader-wave span:nth-child(3) { animation-delay: .16s; }
+        .voice-loader-wave span:nth-child(4) { animation-delay: .24s; }
+        .voice-loader-wave span:nth-child(5) { animation-delay: .32s; }
+
+        @keyframes voiceLoaderSpin {
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes voiceMicPulse {
+          from {
+            transform: scale(.86);
+            box-shadow:
+              0 0 12px #00eaff,
+              0 0 28px rgba(0, 234, 255, .35);
+          }
+          to {
+            transform: scale(1.08);
+            box-shadow:
+              0 0 20px #00eaff,
+              0 0 55px rgba(0, 234, 255, .65);
+          }
+        }
+
+        @keyframes voiceLoaderWave {
+          from { height: 7px; opacity: .4; }
+          to { height: 28px; opacity: 1; }
+        }
+
         .command-loader-overlay {
           position: fixed;
           inset: 0;
@@ -1522,27 +1767,47 @@ function CommandLoader({
       <div className="command-loader-overlay">
         <div className="command-loader-popup">
 
-          <div className="command-loader-animation">
+          {type === "voice" ? (
+            <div className="voice-loader-animation">
+              <div className="voice-loader-ring voice-loader-ring--one" />
+              <div className="voice-loader-ring voice-loader-ring--two" />
+              <div className="voice-loader-ring voice-loader-ring--three" />
 
-            <div className="loader-orbit loader-orbit--one" />
-            <div className="loader-orbit loader-orbit--two" />
-            <div className="loader-orbit loader-orbit--three" />
+              <div className="voice-loader-mic">
+                🎙
+              </div>
 
-            <div className="loader-hex-ring">
-              {Array.from(
-                { length: 12 },
-                (_, index) => (
-                  <span
-                    key={index}
-                    className="loader-hex"
-                  />
-                )
-              )}
+              <div className="voice-loader-wave">
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+              </div>
             </div>
+          ) : (
+            <div className="command-loader-animation">
 
-            <div className="loader-center" />
+              <div className="loader-orbit loader-orbit--one" />
+              <div className="loader-orbit loader-orbit--two" />
+              <div className="loader-orbit loader-orbit--three" />
 
-          </div>
+              <div className="loader-hex-ring">
+                {Array.from(
+                  { length: 12 },
+                  (_, index) => (
+                    <span
+                      key={index}
+                      className="loader-hex"
+                    />
+                  )
+                )}
+              </div>
+
+              <div className="loader-center" />
+
+            </div>
+          )}
 
           <div className="loader-title">
             Processing...
